@@ -1,94 +1,77 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Bitcoin-Lightning  Demo</title>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+	<title>Bitcoin/Lightning Network Swap Demo</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<!-- Bootstrap CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-	<h1>Bitcoin-Lightning Swap Demo</h1>
-
-	<!-- Bitcoin Input -->
-	<label for="bitcoin-input">Bitcoin:</label>
-	<input type="number" id="bitcoin-input" min="1" step="0.00000001">
-	<button onclick="swapToLightning()">Swap to Lightning</button>
-
-	<!-- Lightning Input -->
-	<label for="lightning-input">Lightning:</label>
-	<input type="number" id="lightning-input" min="1" step="0.00000001">
-	<button onclick="swapToBitcoin()">Swap to Bitcoin</button>
-
-	<!-- Swap Status -->
-	<div id="swap-status"></div>
-
+	<div class="container">
+		<h1>Bitcoin/Lightning Network Swap Demo</h1>
+		<p>Use this demo to swap between Bitcoin and the Lightning Network.</p>
+		<form>
+			<div class="form-group">
+				<label for="currency1">Select Currency:</label>
+				<select class="form-control" id="currency1">
+					<option value="BTC">Bitcoin (BTC)</option>
+					<option value="LNT">Lightning Network Token (LNT)</option>
+				</select>
+			</div>
+			<div class="form-group">
+				<label for="amount1">Amount:</label>
+				<input type="text" class="form-control" id="amount1">
+			</div>
+			<div class="form-group">
+				<label for="currency2">Swap To:</label>
+				<select class="form-control" id="currency2">
+					<option value="BTC">Bitcoin (BTC)</option>
+					<option value="LNT">Lightning Network Token (LNT)</option>
+				</select>
+			</div>
+			<div class="form-group">
+				<label for="amount2">Amount:</label>
+				<input type="text" class="form-control" id="amount2" disabled>
+			</div>
+			<button type="button" class="btn btn-primary" onclick="swap()">Swap</button>
+		</form>
+	</div>
+	<!-- jQuery library -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<!-- Bootstrap JS -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 	<script>
-		function swapToLightning() {
-			// Get value from Bitcoin input
-			const bitcoinValue = parseFloat(document.getElementById("bitcoin-input").value);
-
-			// Check if input is valid
-			if (isNaN(bitcoinValue) || bitcoinValue <= 0) {
-				alert("Invalid Bitcoin value!");
-				return;
-			}
-
-			// Show swap status message
-			$("#swap-status").html("Initiating swap to Lightning Network...");
-
-			// Make API call to perform swap to Lightning
-			$.ajax({
-				url: "https://22388o.github.io/demotest/swap-to-lightning",
-				type: "POST",
-				data: {
-					"btc_value": bitcoinValue
-				},
-				success: function(response) {
-					// Update swap status message
-					$("#swap-status").html(`Successfully swapped ${response.lightning_value} Lightning!`);
-					
-					// Update Lightning input value
-					document.getElementById("lightning-input").value = response.lightning_value;
-				},
-				error: function() {
-					// Show error message
-					$("#swap-status").html("Error initiating swap to Lightning Network!");
-				}
-			});
+		function swap() {
+			// Get values from form
+			var currency1 = $('#currency1').val();
+			var amount1 = $('#amount1').val();
+			var currency2 = $('#currency2').val();
+			// Call API to get swap rate
+			var rate = getSwapRate(currency1, currency2);
+			// Calculate swapped amount
+			var amount2 = amount1 * rate;
+			// Update form with swapped amount
+			$('#amount2').val(amount2);
 		}
 
-		function swapToBitcoin() {
-			// Get value from Lightning input
-			const lightningValue = parseFloat(document.getElementById("lightning-input").value);
-
-			// Check if input is valid
-			if (isNaN(lightningValue) || lightningValue <= 0) {
-				alert("Invalid Lightning value!");
-				return;
-			}
-
-			// Show swap status message
-			$("#swap-status").html("Initiating swap to Bitcoin...");
-
-			// Make API call to perform swap to Bitcoin
+		function getSwapRate(currency1, currency2) {
+			// Make API call to get swap rate
+			// Replace with your API endpoint
+			var apiUrl = 'https://api.example.com/swaprate?currency1=' + currency1 + '&currency2=' + currency2;
+			var rate = 0;
 			$.ajax({
-				url: "https://22388o.github.io/demotest/swap-to-bitcoin",
-				type: "POST",
-				data: {
-					"lightning_value": lightningValue
-				},
-				success: function(response) {
-					// Update swap status message
-					$("#swap-status").html(`Successfully swapped ${response.btc_value} Bitcoin!`);
-					
-					// Update Bitcoin input value
-					document.getElementById("bitcoin-input").value = response.btc_value;
+				url: apiUrl,
+				type: 'GET',
+				async: false,
+				success: function(data) {
+					rate = data.rate;
 				},
 				error: function() {
-					// Show error message
-					$("#swap-status").html("Error initiating swap to Bitcoin!");
+					alert('Error getting swap rate.');
 				}
 			});
+			return rate;
 		}
 	</script>
 </body>
