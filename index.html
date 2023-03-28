@@ -10,13 +10,13 @@
 <body>
 	<div class="container">
 		<h1>Bitcoin/Lightning Network Swap Demo</h1>
-		<p>Use this demo to swap between Bitcoin and the Lightning Network.</p>
+		<p>Use this demo to swap between Bitcoin and USD.</p>
 		<form>
 			<div class="form-group">
 				<label for="currency1">Select Currency:</label>
 				<select class="form-control" id="currency1">
 					<option value="BTC">Bitcoin (BTC)</option>
-					<option value="LNT">Lightning Network Token (LNT)</option>
+					<option value="USD">USD (USD)</option>
 				</select>
 			</div>
 			<div class="form-group">
@@ -27,7 +27,7 @@
 				<label for="currency2">Swap To:</label>
 				<select class="form-control" id="currency2">
 					<option value="BTC">Bitcoin (BTC)</option>
-					<option value="LNT">Lightning Network Token (LNT)</option>
+					<option value="USD">USD (USD)</option>
 				</select>
 			</div>
 			<div class="form-group">
@@ -58,7 +58,7 @@
 		function getSwapRate(currency1, currency2) {
 			// Make API call to get swap rate
 			// Replace with your API endpoint
-			var apiUrl = 'https://api.example.com/swaprate?currency1=' + currency1 + '&currency2=' + currency2;
+			var apiUrl = 'ttps://api-pub.bitfinex.com/v2/tBTCUSD=' + currency1 + '&currency2=' + currency2;
 			var rate = 0;
 			$.ajax({
 				url: apiUrl,
