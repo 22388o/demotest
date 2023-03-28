@@ -1,292 +1,95 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html>
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" href="style.css">
-    <title>ZeroSync | Headers Chain Verifier</title>
-    <meta property="og:title" content="ZeroSync: STARKs for Bitcoin">
-    <meta property="og:image" content="https://zerosync.org/social_media_preview.png">
-    <meta property="og:description" content="ZeroSync is spearheading the development of proof systems for Bitcoin. Applying groundbreaking cryptography, we are pionieering the future of Bitcoin privacy, interoperability, and scalability.">
-    <meta property="og:type" content="article">
-    <meta property="og:url" content="https://zerosync.net/">
-    <meta property="og:author" content="https://facebook.com/RobinLinus">
-    <meta name="twitter:author" content="@RobinLinus">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:description" content="ZeroSync is spearheading the development of proof systems for Bitcoin. Applying groundbreaking cryptography, we are pionieering the future of Bitcoin privacy, interoperability, and scalability.">
-    <link rel="icon" type="image/png" href="https://zerosync.org/favicon.png" />
-    <style>
-    main {
-        background: url(assets/hex-bg-sparse.png), #171a57;
-        background-size: cover;
-    }
-
-    x-item {
-        display: flex;
-        flex-direction: column;
-        height: 56px;
-        margin-bottom: 8px;
-
-    }
-
-    x-item:before {
-        content: attr(label);
-        font-size: 12px;
-        opacity: 0.5;
-        margin-bottom: 4px;
-        font-weight: bold;
-        font-family: var(--font);
-    }
-
-    x-item:empty {
-        display: none;
-    }
-
-    x-item a {
-        font-size: 13px;
-    }
-
-    .mono {
-        font-family: monospace;
-        font-size: 15px;
-        width: 70%;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        display: inline-block;
-    }
-
-    x-item.mono a {
-        font-family: var(--font);
-    }
-
-    .row {
-        display: flex;
-        margin-bottom: 24px;
-    }
-
-    .row-reverse {
-        display: flex;
-        flex-direction: row-reverse;
-    }
-
-
-    .row>x-item {
-        margin-right: 32px;
-    }
-
-    .center {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 128px;
-    }
-
-
-    .disclaimer {
-        --text-size: 15px;
-        --line-height: 21px;
-        background: rgb(255 255 255 / 3%);
-        margin-top: 160px;
-        padding: 32px 48px;
-    }
-
-    .disclaimer b {
-        text-transform: uppercase;
-        font-weight: 800;
-        letter-spacing: 0.10em;
-        color: rgba(255, 255, 255, 0.7);
-        border-radius: 8px;
-    }
-
-    progress {
-        -webkit-appearance: none;
-        appearance: none;
-        height: 4px;
-        width: 240px;
-        border-radius: 4px;
-        overflow: hidden;
-    }
-
-    progress::-webkit-progress-bar {
-        background-color: rgba(66, 133, 244, 0.3);
-    }
-
-
-    progress::-webkit-progress-value {
-        background: var(--color-link);
-    }
-
-    @media (max-width: 600px) {
-        .row>x-item {
-            margin-right: 16px;
-        }
-
-        .mono {
-            width: 260px;
-        }
-
-        .disclaimer {
-            padding: 8px 16px;
-        }
-
-        x-item.timestamp {
-            font-size: 13px;
-        }
-    }
-
-    .sync-notification{
-    	display: flex;
-    	align-items: center;
-    }
-
-    .sync-notification img {
-        margin-right: 16px;
-        width: 32px;
-    }
-    </style>
+	<title>Bitcoin-Lightning Swap Demo</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 </head>
-
 <body>
-    <header>
-        <a href="./">
-            <img src="assets/logo_white.png" class="logo">
-        </a>
-    </header>
-    <main class="fade-in">
-        <section>
-            <h1>Headers Chain Verifier</h1>
-            <h2>Instantly verify Bitcoin's headers chain in your browser.</h2>
-            <p id="$btn_hint">
-                This is a simple demo of a chain state proof. It runs the <a href="https://github.com/zerosync/zerosync_wasm/" target="_blank">Giza STARK verifier in WebAssembly</a> to verify a recursive proof of Bitcoin's header chain in your browser.
-            </p>
-            <div class="center">
-                <button onclick="start_verify()" id="$btn_verify" class="button slide-up delay-800">ZeroSync Bitcoin</button>
-                <progress value="1" max="100" id="$progress" hidden>
-            </div>
-            <div id="$program_hash_output" hidden class="slide-up">
-                <div class="sync-notification">
-                    <img src="assets/icons/check.svg">
-                    <span>
-                        You are synced with the Bitcoin network.
-                    </span>
-                </div>
-                <p>
-                    <i style="font-size: 13px;">Hint: Hover your mouse over the outputs for more information.</i>
-                </p>
-                <h3>The Bitcoin Program</h3>
-                <div class="row">
-                    <x-item label="STARK Program Hash" title="The fingerprint of what everybody agrees to be 'the Bitcoin rules' expressed in a STARK program. This hash is the same for every valid proof.">
-                        <span id="$program_hash" class="mono"></span>
-                    </x-item>
-                    <x-item id="$proof_size" label="Proof Size" title="The (uncompressed) size of the proof. It is constant size, regardless of the growing length of the chain."></x-item>
-                </div>
-            </div>
-            <div id="$proof_output" hidden class="slide-up delay-600">
-                <h3>Headers Chain State</h3>
-                <div class="row">
-                    <x-item id="$block_height" label="Block Height" title="The number of blocks in the chain. This is just a prototype and proving is expensive, so we have not proven all +700000 blocks yet." tabindex="-1"></x-item>
-                    <x-item id="$latest_time" label="Timestamp" title="The timestamp of the latest block" class="timestamp"></x-item>
-                    <x-item id="$median_time" label="Median Timestamp" title="The median time over the latest 11 blocks" class="timestamp"></x-item>
-                </div>
-                <x-item label="Best Block Hash" title="The hash of the block at the tip of the chain">
-                    <span id="$best_block_hash" class="mono"></span>
-                    <div class="row-reverse">
-                        <a id="$block_explorer" target="_blank" title="Show this block in the explorer">Explore</a>
-                    </div>
-                </x-item>
-                <div class="row">
-                    <x-item id="$total_work" label="Total Chain Work" title="The expected number of hashes required to generate this chain."></x-item>
-                    <x-item id="$difficulty" label="Difficulty" title="This epoch's difficulty target"></x-item>
-                    <x-item id="$epoch_start_time" label="Start of Epoch" title="The start time of the current epoch" class="timestamp"></x-item>
-                    <x-item id="$recalibrate_countdown" label="Next Recalibration" title="Number of blocks until next recalibration"></x-item>
-                </div>
-                <div class="row">
-                    <x-item label="Headers Merkle Root" title="Root of the Merkle tree over all block headers. This allows for succinct proofs of inclusion for all blocks and transactions.">
-                        <span class="mono" id="$headers_merkle_root"></span>
-                    </x-item>
-                </div>
-            </div>
-            <p class="disclaimer">
-                <b>🚧 Disclaimer:</b> This prototype is work in progress. As of today, we've generated proofs only for the first few thousand block headers. Also this website currently validates only the <i>headers chain</i>, and verifies no <i>transactions</i> yet. We have implemented a full chain proof, however it is still too early-stage to invest significant computational resources in generating a proof over the entire chain.
-            </p>
-        </section>
-    </main>
-    <footer>
-        <div class="icons">
-            <a href="https://twitter.com/zerosync_">
-                <img src="assets/icons/twitter.svg">
-            </a>
-            <a href="https://github.com/ZeroSync/ZeroSync">
-                <img src="assets/icons/github.svg">
-            </a>
-            <a href="mailto:hello@zerosync.org">
-                <img src="assets/icons/mail.svg">
-            </a>
-            <a href="https://t.me/zerosync_chat">
-                <img src="assets/icons/telegram.svg">
-            </a>
-        </div>
-        ZeroSync Association Switzerland
-    </footer>
+	<h1>Bitcoin-Lightning Swap Demo</h1>
+
+	<!-- Bitcoin Input -->
+	<label for="bitcoin-input">Bitcoin:</label>
+	<input type="number" id="bitcoin-input" min="0" step="0.00000001">
+	<button onclick="swapToLightning()">Swap to Lightning</button>
+
+	<!-- Lightning Input -->
+	<label for="lightning-input">Lightning:</label>
+	<input type="number" id="lightning-input" min="0" step="0.00000001">
+	<button onclick="swapToBitcoin()">Swap to Bitcoin</button>
+
+	<!-- Swap Status -->
+	<div id="swap-status"></div>
+
+	<script>
+		function swapToLightning() {
+			// Get value from Bitcoin input
+			const bitcoinValue = parseFloat(document.getElementById("bitcoin-input").value);
+
+			// Check if input is valid
+			if (isNaN(bitcoinValue) || bitcoinValue <= 0) {
+				alert("Invalid Bitcoin value!");
+				return;
+			}
+
+			// Show swap status message
+			$("#swap-status").html("Initiating swap to Lightning Network...");
+
+			// Make API call to perform swap to Lightning
+			$.ajax({
+				url: "https://example.com/swap-to-lightning",
+				type: "POST",
+				data: {
+					"btc_value": bitcoinValue
+				},
+				success: function(response) {
+					// Update swap status message
+					$("#swap-status").html(`Successfully swapped ${response.lightning_value} Lightning!`);
+					
+					// Update Lightning input value
+					document.getElementById("lightning-input").value = response.lightning_value;
+				},
+				error: function() {
+					// Show error message
+					$("#swap-status").html("Error initiating swap to Lightning Network!");
+				}
+			});
+		}
+
+		function swapToBitcoin() {
+			// Get value from Lightning input
+			const lightningValue = parseFloat(document.getElementById("lightning-input").value);
+
+			// Check if input is valid
+			if (isNaN(lightningValue) || lightningValue <= 0) {
+				alert("Invalid Lightning value!");
+				return;
+			}
+
+			// Show swap status message
+			$("#swap-status").html("Initiating swap to Bitcoin...");
+
+			// Make API call to perform swap to Bitcoin
+			$.ajax({
+				url: "https://example.com/swap-to-bitcoin",
+				type: "POST",
+				data: {
+					"lightning_value": lightningValue
+				},
+				success: function(response) {
+					// Update swap status message
+					$("#swap-status").html(`Successfully swapped ${response.btc_value} Bitcoin!`);
+					
+					// Update Bitcoin input value
+					document.getElementById("bitcoin-input").value = response.btc_value;
+				},
+				error: function() {
+					// Show error message
+					$("#swap-status").html("Error initiating swap to Bitcoin!");
+				}
+			});
+		}
+	</script>
 </body>
-
 </html>
-<script src="https://zerosync.org/headers_chain/stark_verifier.js?no_cache"></script>
-<script>
-async function verify() {
-
-    const proof_url = `headers_chain/headers_chain_proof-1919.bin?nocache=${Date.now()}`
-    const response = await fetch(proof_url)
-    const proof = await response.arrayBuffer()
-    const bitcoin_state = await stark_verifier.verify(proof)
-    console.log(bitcoin_state)
-
-    const block_hash_swapped = bitcoin_state.best_block_hash
-    const block_hash = block_hash_swapped.replace(/^(.(..)*)$/, '0$1').match(/../g).reverse().join('')
-    $best_block_hash.innerText = block_hash;
-    $block_explorer.href = `https://blockstream.info/block/${block_hash}`
-
-
-    $proof_size.innerText = Math.round(proof.byteLength / 1e3) + ' kB'
-    $block_height.innerText = bitcoin_state.block_height
-    $program_hash.innerText = bitcoin_state.program_hash.replace('0x', '')
-    $latest_time.innerText = formatDate(bitcoin_state.prev_timestamps[0])
-    $median_time.innerText = formatDate(bitcoin_state.prev_timestamps.sort()[5])
-    $epoch_start_time.innerText = formatDate(bitcoin_state.epoch_start_time)
-    $total_work.innerText = '0x' + BigInt(bitcoin_state.total_work).toString(16)
-    $difficulty.innerText = '0x' + BigInt(bitcoin_state.difficulty).toString(16)
-    $recalibrate_countdown.innerText = `${2016 - bitcoin_state.block_height % 2016} blocks`
-
-    $headers_merkle_root.innerText = bitcoin_state.merkle_root.replace('0x', '')
-
-}
-
-function formatDate(date) {
-    return (new Date(date * 1000)).toLocaleString("en-US")
-}
-
-
-async function start_verify() {
-    $btn_verify.hidden = true
-    // $btn_hint.hidden = true
-    $progress.hidden = false
-
-
-    // People think proof verification is too fast, so wait a bit :)
-    const timer = setInterval(_ => {
-        $progress.value += 3;
-    }, 50)
-
-    await verify();
-    setTimeout(_ => {
-        $proof_output.hidden = false
-        $progress.hidden = true
-        $program_hash_output.hidden = false
-        $progress.parentElement.remove()
-        clearInterval(timer)
-    }, 2000)
-}
-
-// start_verify()
-</script>
